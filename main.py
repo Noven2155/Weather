@@ -15,20 +15,29 @@ import streamlit as st
 from datetime import datetime
 import pytz
 
-st.title("weather_app")
+# Set Streamlit page configuration
+st.set_page_config(page_title="Weather App", layout="centered")
+
+# App title
+st.title("Weather App")
 
 API_key = "37d1174f343a0198e1ef81d590f1c13a"
 limit = 1
 
-# תאריך ושעה מקומית של המשתמש
+# Get user's local time
 local_time = datetime.now()
 local_time_str = local_time.strftime("%A, %d %B %Y %H:%M:%S")
-st.text(f"Your local date and time: {local_time_str}")
 
-city_name = st.text_input("Your City:").capitalize()
+# Display local time in sidebar
+st.sidebar.markdown("### Your Local Date & Time")
+st.sidebar.success(local_time_str)
+
+# City input field
+city_name = st.text_input("Enter a city name:").capitalize()
 
 if city_name:
     try:
+        # Get location details (latitude and longitude)
         respond = requests.get(
             f"http://api.openweathermap.org/geo/1.0/direct?q={city_name}&limit={limit}&appid={API_key}"
         )
@@ -36,41 +45,48 @@ if city_name:
         data = respond.json()
 
         if not data:
-            st.warning("City not found. Please try again.\n")
+            st.warning("City not found. Please try again.")
         else:
             lat = data[0]['lat']
             lon = data[0]['lon']
-            country_code = data[0]['country']
 
+            # Get weather data using coordinates
             respond1 = requests.get(
                 f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_key}&units=metric"
             )
             respond1.raise_for_status()
             current_weather = respond1.json()
 
-            weather1 = current_weather['weather'][0]
-            main1 = current_weather['main']
-            wind1 = current_weather['wind']
-            sys1 = current_weather['sys']
-            timezone_offset = current_weather['timezone']  # בשניות
+            weather = current_weather['weather'][0]
+            main = current_weather['main']
+            wind = current_weather['wind']
+            sys = current_weather['sys']
+            timezone_offset = current_weather['timezone']  # in seconds
 
-            # יצירת אזור זמן לפי ה־offset
+            # Convert timezone offset to datetime
             location_timezone = pytz.FixedOffset(timezone_offset // 60)
             location_time = datetime.now(location_timezone)
             location_time_str = location_time.strftime("%A, %d %B %Y %H:%M:%S")
 
-            weather_display = f"""
-            Your local time: {local_time_str}
-            Local time in {city_name}, {sys1['country']}: {location_time_str}
+            # Weather icon from OpenWeatherMap
+            icon_code = weather['icon']
+            icon_url = f"http://openweathermap.org/img/wn/{icon_code}@2x.png"
+            st.image(icon_url, caption=weather['description'].capitalize(), width=100)
 
-            Today is {location_time.strftime('%A, %d %B %Y')} and the Temp in {city_name}, {sys1['country']} is {round(main1['temp'],1)}°C.
-            Max temp can get up to {round(main1['temp_max'],1)}°C and the min temp can get down to {round(main1['temp_min'],1)}°C.
-            It is {weather1['description']} and Humidity is {main1['humidity']}%.
-            Have a great Day!
-            """
+            # Display local time in the selected location
+            st.markdown(f"### Local time in {city_name}, {sys['country']}")
+            st.info(location_time_str)
 
-            st.text(weather_display)
+            # Display weather data as metrics
+            st.metric(label="Temperature", value=f"{round(main['temp'], 1)}°C")
+            st.metric(label="Max Temperature", value=f"{round(main['temp_max'], 1)}°C")
+            st.metric(label="Min Temperature", value=f"{round(main['temp_min'], 1)}°C")
+            st.metric(label="Humidity", value=f"{main['humidity']}%")
+            st.metric(label="Wind Speed", value=f"{wind['speed']} m/s")
+
+            # Final message
+            st.success("Have a great day!")
 
     except Exception as e:
-        st.error(f"Error occurred: {e}")
-        st.info("Please enter a valid City.\n")
+        st.error(f"Error: {e}")
+        st.info("Please enter a valid city name.")
