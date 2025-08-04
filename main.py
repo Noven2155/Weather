@@ -25,7 +25,9 @@ API_key = "37d1174f343a0198e1ef81d590f1c13a"
 limit = 1
 
 # Get user's local time
-local_time = datetime.now()
+tz = pytz.timezone("Asia/Jerusalem")
+local_time = datetime.now(tz)
+
 local_time_str = local_time.strftime("%A, %d %B %Y %H:%M:%S")
 
 # Display local time in sidebar
