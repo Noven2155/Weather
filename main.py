@@ -14,6 +14,7 @@ import requests
 import streamlit as st
 from datetime import datetime
 
+st.title("weather_app")
 API_key = "37d1174f343a0198e1ef81d590f1c13a"
 limit = 1
 while True:
