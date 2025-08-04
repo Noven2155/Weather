@@ -18,7 +18,7 @@ st.title("weather_app")
 API_key = "37d1174f343a0198e1ef81d590f1c13a"
 limit = 1
 while True:
-  city_name = input("Your City: ").capitalize()
+  city_name = st.text_input("Your City: ").capitalize()
   try:
     respond = requests.get(f"http://api.openweathermap.org/geo/1.0/direct?q={city_name}&limit={limit}&appid={API_key}")
     respond.raise_for_status()
