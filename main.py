@@ -13,37 +13,62 @@ Original file is located at
 import requests
 import streamlit as st
 from datetime import datetime
+import pytz
 
-st.title("Weather_app")
+st.title("weather_app")
+
 API_key = "37d1174f343a0198e1ef81d590f1c13a"
 limit = 1
+
+# תאריך ושעה מקומית של המשתמש
+local_time = datetime.now()
+local_time_str = local_time.strftime("%A, %d %B %Y %H:%M:%S")
+st.text(f"Your local date and time: {local_time_str}")
 
 city_name = st.text_input("Your City:").capitalize()
 
 if city_name:
     try:
-        respond = requests.get(f"http://api.openweathermap.org/geo/1.0/direct?q={city_name}&limit={limit}&appid={API_key}")
+        respond = requests.get(
+            f"http://api.openweathermap.org/geo/1.0/direct?q={city_name}&limit={limit}&appid={API_key}"
+        )
         respond.raise_for_status()
         data = respond.json()
+
         if not data:
             st.warning("City not found. Please try again.\n")
         else:
             lat = data[0]['lat']
             lon = data[0]['lon']
-            respond1 = requests.get(f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_key}&units=metric")
+            country_code = data[0]['country']
+
+            respond1 = requests.get(
+                f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_key}&units=metric"
+            )
             respond1.raise_for_status()
             current_weather = respond1.json()
+
             weather1 = current_weather['weather'][0]
             main1 = current_weather['main']
             wind1 = current_weather['wind']
             sys1 = current_weather['sys']
+            timezone_offset = current_weather['timezone']  # בשניות
+
+            # יצירת אזור זמן לפי ה־offset
+            location_timezone = pytz.FixedOffset(timezone_offset // 60)
+            location_time = datetime.now(location_timezone)
+            location_time_str = location_time.strftime("%A, %d %B %Y %H:%M:%S")
 
             weather_display = f"""
-            Today is {datetime.now().strftime('%A, %d %B %Y')} and the Temp in {city_name}, {sys1['country']} is {round(main1['temp'],1)}°C.
+            Your local time: {local_time_str}
+            Local time in {city_name}, {sys1['country']}: {location_time_str}
+
+            Today is {location_time.strftime('%A, %d %B %Y')} and the Temp in {city_name}, {sys1['country']} is {round(main1['temp'],1)}°C.
             Max temp can get up to {round(main1['temp_max'],1)}°C and the min temp can get down to {round(main1['temp_min'],1)}°C.
             It is {weather1['description']} and Humidity is {main1['humidity']}%.
             Have a great Day!
             """
+
             st.text(weather_display)
 
     except Exception as e:
