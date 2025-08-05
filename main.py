@@ -52,6 +52,8 @@ default_city = st.sidebar.text_input("Set default city:", value=settings["defaul
 unit = st.sidebar.selectbox("Select temperature unit:", ["metric", "imperial"],
                             index=["metric", "imperial"].index(settings["unit"]))
 
+
+
 # Add favorite city
 new_favorite = st.sidebar.text_input("Add favorite city:")
 if st.sidebar.button("Add City"):
@@ -76,24 +78,36 @@ save_settings(settings)
 # Show current favorites and allow selection
 if settings["favorites"]:
     st.sidebar.markdown("### Favorite Cities:")
+    st.sidebar.write(", ".join(settings["favorites"]))
 
-    # Dropdown menu to select a city from favorites
-   # selected_favorite = st.sidebar.selectbox("Choose from favorites:", options=[""] + settings["favorites"], key="sidebar_favorite")
-
+# # --- NEW: Button to reset selection to default location ---
+# if st.sidebar.button("Reset to Default City"):
+#     city_input = ""
+#     selected_favorite = ""
+#     city_name = default_city.capitalize()
 
 # Get city input from user
 city_input = st.text_input("Enter a city name:")
 city_name = city_input.capitalize() if city_input else ""
 
 # If no manual input, show dropdown of favorite cities
-if not city_name and settings["favorites"]:
-    selected_favorite = st.sidebar.selectbox("Choose from favorites:", [""] + settings["favorites"])
-    if selected_favorite:
-        city_name = selected_favorite
-    else:
-        city_name = settings.get("default_location", "Tel Aviv").capitalize()
-elif not city_name:
-    city_name = settings.get("default_location", "Tel Aviv").capitalize()
+# if not city_name and settings["favorites"]:
+#     favorites_with_default = [f"(Default) {settings['default_location']}"] + settings["favorites"]
+#     selected_favorite = st.sidebar.selectbox("Choose from favorites or default:", favorites_with_default)
+#     if selected_favorite:
+#         city_name = selected_favorite
+#     else:
+#         city_name = settings.get("default_location", "Tel Aviv").capitalize()
+# elif not city_name:
+#     city_name = settings.get("default_location", "Tel Aviv").capitalize()
+
+favorites_with_default = [f"(Default) {settings['default_location']}"] + settings["favorites"]
+selected_favorite = st.sidebar.selectbox("Choose from favorites or default:", favorites_with_default)
+
+if selected_favorite.startswith("(Default)"):
+    city_name = settings["default_location"].capitalize()
+else:
+    city_name = selected_favorite
 
 
 if city_name:
@@ -149,6 +163,22 @@ if city_name:
             st.metric(label="Min Temperature", value=f"{round(main['temp_min'], 1)}{temp_symbol}")
             st.metric(label="Humidity", value=f"{main['humidity']}%")
             st.metric(label="Wind Speed", value=f"{wind['speed']} m/s")
+
+            # Display location map using Folium ---
+            import folium
+            from streamlit_folium import folium_static
+
+            # Create a map centered at the location
+            m = folium.Map(location=[lat, lon], zoom_start=10)
+
+            # Add a marker for the selected city
+            folium.Marker([lat, lon], popup=f"{city_name}").add_to(m)
+
+            # Show the map inside the Streamlit app
+            folium_static(m)
+
+            # --- NEW: Add user-friendly explanation below the map ---
+            st.caption("Map shows the selected city and its location. You can zoom or pan to explore nearby areas.")
 
             # Final message
             st.success("Have a great day!")

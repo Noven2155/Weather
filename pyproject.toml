@@ -12,7 +12,9 @@ dependencies = [
     "datetime (>=5.5,<6.0)",
     "streamlit (>=1.47.1,<2.0.0)",
     "pytz (>=2025.2,<2026.0)",
-    "tzwhere (>=3.0.3,<4.0.0)"
+    "tzwhere (>=3.0.3,<4.0.0)",
+    "folium (>=0.20.0,<0.21.0)",
+    "streamlit-folium (>=0.25.1,<0.26.0)"
 ]
 
 
