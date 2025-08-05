@@ -13,7 +13,8 @@ Users can set a default city, choose temperature units (Celsius/Fahrenheit), and
 - Python 🐍  
 - Streamlit web interface  
 - External weather API - OpenWeather  
-- Local JSON file for saving preferences  
+- Local JSON file for saving preferences
+- Folium for interactive maps
 
 📦 How to Use
 
