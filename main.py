@@ -1,11 +1,8 @@
 
-
 import requests
 import streamlit as st
 from datetime import datetime
 import pytz
-
-#  Add modules for JSON and file handling
 import json
 import os
 
@@ -75,11 +72,10 @@ settings["default_location"] = default_city.capitalize()
 settings["unit"] = unit
 save_settings(settings)
 
-# Show current favorites and allow selection
+# Show current favorites
 if settings["favorites"]:
     st.sidebar.markdown("### Favorite Cities:")
     st.sidebar.write(", ".join(settings["favorites"]))
-
 
 
 # Manual city input
@@ -92,7 +88,6 @@ if not city_name:
     favorites_with_default = [f"(Default) {settings['default_location']}"] + settings["favorites"]
     selected_favorite = st.sidebar.selectbox("Choose from favorites or default:", favorites_with_default)
 
-    # If "(Default)" option selected — use default location
     if selected_favorite.startswith("(Default)"):
         city_name = settings["default_location"].capitalize()
     else:
@@ -166,7 +161,7 @@ if city_name:
             # Show the map inside the Streamlit app
             folium_static(m)
 
-            # --- NEW: Add user-friendly explanation below the map ---
+            # Add user-friendly explanation below the map ---
             st.caption("Map shows the selected city and its location. You can zoom or pan to explore nearby areas.")
 
             # Final message
