@@ -80,34 +80,23 @@ if settings["favorites"]:
     st.sidebar.markdown("### Favorite Cities:")
     st.sidebar.write(", ".join(settings["favorites"]))
 
-# # --- NEW: Button to reset selection to default location ---
-# if st.sidebar.button("Reset to Default City"):
-#     city_input = ""
-#     selected_favorite = ""
-#     city_name = default_city.capitalize()
 
-# Get city input from user
-city_input = st.text_input("Enter a city name:")
-city_name = city_input.capitalize() if city_input else ""
 
-# If no manual input, show dropdown of favorite cities
-# if not city_name and settings["favorites"]:
-#     favorites_with_default = [f"(Default) {settings['default_location']}"] + settings["favorites"]
-#     selected_favorite = st.sidebar.selectbox("Choose from favorites or default:", favorites_with_default)
-#     if selected_favorite:
-#         city_name = selected_favorite
-#     else:
-#         city_name = settings.get("default_location", "Tel Aviv").capitalize()
-# elif not city_name:
-#     city_name = settings.get("default_location", "Tel Aviv").capitalize()
+# Manual city input
+city_input = st.text_input("Enter a city name:",key="city_input_main")
+city_name = city_input.capitalize().strip() if city_input else ""
 
-favorites_with_default = [f"(Default) {settings['default_location']}"] + settings["favorites"]
-selected_favorite = st.sidebar.selectbox("Choose from favorites or default:", favorites_with_default)
 
-if selected_favorite.startswith("(Default)"):
-    city_name = settings["default_location"].capitalize()
-else:
-    city_name = selected_favorite
+# If no manual input — fall back to favorite or default selection
+if not city_name:
+    favorites_with_default = [f"(Default) {settings['default_location']}"] + settings["favorites"]
+    selected_favorite = st.sidebar.selectbox("Choose from favorites or default:", favorites_with_default)
+
+    # If "(Default)" option selected — use default location
+    if selected_favorite.startswith("(Default)"):
+        city_name = settings["default_location"].capitalize()
+    else:
+        city_name = selected_favorite
 
 
 if city_name:
