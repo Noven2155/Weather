@@ -73,10 +73,16 @@ settings["default_location"] = default_city.capitalize()
 settings["unit"] = unit
 save_settings(settings)
 
-# Show current favorites
+# Show current favorites and allow selection
 if settings["favorites"]:
     st.sidebar.markdown("### Favorite Cities:")
-    st.sidebar.write(", ".join(settings["favorites"]))
+
+    # Dropdown menu to select a city from favorites
+    selected_favorite = st.sidebar.selectbox("Choose from favorites:", options=[""] + settings["favorites"])
+
+    # If user selects a favorite and doesn't enter a new city, use the favorite
+    if selected_favorite and not city_name:
+        city_name = selected_favorite
 
 
 
