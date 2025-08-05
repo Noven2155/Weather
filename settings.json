@@ -1,5 +1,8 @@
 {
     "default_location": "Tel aviv",
     "unit": "metric",
-    "favorites": []
+    "favorites": [
+        "Boston",
+        "New york"
+    ]
 }

@@ -78,17 +78,21 @@ if settings["favorites"]:
     st.sidebar.markdown("### Favorite Cities:")
 
     # Dropdown menu to select a city from favorites
-    selected_favorite = st.sidebar.selectbox("Choose from favorites:", options=[""] + settings["favorites"])
+   # selected_favorite = st.sidebar.selectbox("Choose from favorites:", options=[""] + settings["favorites"], key="sidebar_favorite")
 
-    # If user selects a favorite and doesn't enter a new city, use the favorite
-    if selected_favorite and not city_name:
+
+# Get city input from user
+city_input = st.text_input("Enter a city name:")
+city_name = city_input.capitalize() if city_input else ""
+
+# If no manual input, show dropdown of favorite cities
+if not city_name and settings["favorites"]:
+    selected_favorite = st.sidebar.selectbox("Choose from favorites:", [""] + settings["favorites"])
+    if selected_favorite:
         city_name = selected_favorite
-
-
-
-# Use default city if no input is provided
-city_name = st.text_input("Enter a city name:").capitalize()
-if not city_name:
+    else:
+        city_name = settings.get("default_location", "Tel Aviv").capitalize()
+elif not city_name:
     city_name = settings.get("default_location", "Tel Aviv").capitalize()
 
 
